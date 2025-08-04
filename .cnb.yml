@@ -9,6 +9,8 @@ $:
       services:
         - docker
         - vscode
+      env:
+        CNB_WELCOME_CMD: pnpm i
       stages:
         - name: ls
           script: ls
