@@ -41,6 +41,10 @@ const packageManagerOptions = computed(() => {
 
 
 async function install(command: string) {
+  if (running.value) {
+    showInfo("Please wait for the last installation to complete.\nPress [\\] to see the logs.");
+    return;
+  }
   currentView.value = "shell";
   shellOutput.value+= `> ${packageManagerOptions.value.name} ${packageManagerOptions.value.add} ${command}\n`;
   running.value = true;
