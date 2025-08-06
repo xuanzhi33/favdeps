@@ -1,13 +1,16 @@
 <script lang="ts" setup>
-import { useStdout } from "vue-termui/dist/src";
+import { execSync, spawn } from "node:child_process";
 import List from "./component/List.vue";
 import { currentPackageManager, packageManagers } from "./utils/packageManager";
+import { sleep } from "./utils/sleep";
 
 // All imports are automatic but if you want to import anything,
 // remember to import from 'vue-termui':
 // import { ref } from 'vue-termui'
 const deps = ref<string[]>([]);
 const loading = ref(true);
+const running = ref(false);
+
 async function getDeps() {
   try {
     loading.value = true;
@@ -36,6 +39,29 @@ const packageManagerOptions = computed(() => {
   return packageManagers[packageManager.value];
 });
 
+
+async function install(command: string) {
+  currentView.value = "shell";
+  shellOutput.value+= `> ${packageManagerOptions.value.name} ${packageManagerOptions.value.add} ${command}\n`;
+  running.value = true;
+  const child = spawn(packageManagerOptions.value.name, [
+    packageManagerOptions.value.add,
+    ...command.split(" "),
+  ]);
+  child.stdout.on("data", (data) => {
+    shellOutput.value += data.toString();
+  });
+  child.stderr.on("data", (data) => {
+    shellOutput.value += data.toString();
+  });
+  child.on("exit", async () => {
+    running.value = false;
+    await sleep(300);
+    currentView.value = "main";
+  });
+
+}
+
 onMounted(async () => {
   getDeps();
   packageManager.value = currentPackageManager();
@@ -59,16 +85,29 @@ onKeyData((e) => {
     }
     return;
   }
+  if (e.key === "/") {
+    currentView.value = "shell";
+    return;
+  }
+
   if (e.key === "!") {
     getDeps();
     return;
   }
 
   if (e.key === "?") {
-    showInfo(`You can set the environment variable FAVDEPS_URL to change the source of the dependencies list.
+    showInfo(`Set the environment variable FAVDEPS_URL to change the source of the dependencies list.
 The dependency list should be a text file, with each line representing a dependency. Because it will be concatenated with the installation command, you can add "-D" to specify it as a development dependency.
 The usual practice is to upload this file to a GitHub repository and set the FAVDEPS_URL as the RAW link of this file.
-Tips: You can press [!] to refresh the dependencies list`);
+Tips:
+Press [!] to refresh the dependencies list
+Press [/] to see the logs of the last installation (and [ESC] for back)`);
+    return;
+  }
+
+  if (e.key === "Enter") {
+    install(selectedPackage.value);
+    input.value = "";
     return;
   }
 
@@ -84,6 +123,7 @@ const cursorShow = ref(true);
 const selectedPackage = ref("");
 const currentView = ref("main");
 const infoText = ref("");
+const shellOutput = ref("");
 
 function showInfo(text: string) {
   infoText.value = text;
@@ -107,6 +147,7 @@ const filteredDeps = computed(() => {
     :minHeight="14"
     flexDirection="row"
     borderStyle="round"
+    v-if="currentView !== 'shell'"
   >
     <template v-if="currentView === 'main'"><Box :flexGrow="1" :marginX="1" flexDirection="column">
       <Box borderStyle="single" :paddingX="1" title="Package Name">
@@ -127,6 +168,7 @@ const filteredDeps = computed(() => {
       >
         <Text v-if="selectedPackage"
           >>
+          {{ packageManagerOptions.name }}
           {{ packageManagerOptions.add }}
           {{ selectedPackage }}</Text
         >
@@ -162,5 +204,10 @@ const filteredDeps = computed(() => {
         </Text></Box>
       </Box>
     </template>
+  </Box>
+  <Box v-else borderStyle="round" :title="`FavDeps [${running ? 'Installing...' : 'Log'}]`" width="100%" :minHeight="5" :paddingX="1">
+    <Text>
+      {{ shellOutput.split("\n").slice(-12).join("\n") }}{{ cursorShow && running ? "▉" : " " }}
+    </Text>
   </Box>
 </template>

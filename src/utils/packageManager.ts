@@ -3,15 +3,15 @@ import { existsSync } from 'node:fs'
 export const packageManagers = [
   {
     name: "npm",
-    add: "npm install"
+    add: "install"
   },
   {
     name: "pnpm",
-    add: "pnpm add"
+    add: "add"
   },
   {
     name: "yarn",
-    add: "yarn add"
+    add: "add"
   }
 ]
 
