@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "bin": {
-    "vtui-app": "./dist/main.mjs"
+    "favdeps": "./dist/main.mjs"
   },
   "scripts": {
     "dev": "vtui dev",
