@@ -15,7 +15,8 @@ async function getDeps() {
   try {
     loading.value = true;
     const res = await fetch(
-      "https://cnb.cool/xuanzhi33/favdeps/-/git/raw/main/example/deps.txt"
+      process.env.FAVDEPS_URL ||
+      "https://raw.githubusercontent.com/xuanzhi33/favdeps/refs/heads/main/example/deps.txt"
     );
     if (!res.ok) {
       throw new Error(res.statusText);
