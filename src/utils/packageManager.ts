@@ -18,9 +18,9 @@ export const packageManagers = [
 export function currentPackageManager() {
   if (existsSync("yarn.lock")) {
     return 2;
-  } else if (existsSync("pnpm-lock.yaml")) {
-    return 1;
-  } else {
+  } else if (existsSync("package-lock.json")) {
     return 0;
+  } else {
+    return 1;
   }
 }
