@@ -7,13 +7,13 @@ A simple terminal application to quickly add your favorite dependencies to your 
 Run
 
 ```bash
-npx favdeps
+pnpx favdeps
 ```
 
 or install globally
 
 ```bash
-npm install -g favdeps
+pnpm install -g favdeps
 ```
 
 then run
