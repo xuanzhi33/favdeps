@@ -5,3 +5,5 @@ tailwindcss @tailwindcss/vite
 motion-v
 clsx tailwind-merge
 antd
+pinia
+@pinia/colada
