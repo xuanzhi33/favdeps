@@ -7,3 +7,4 @@ clsx tailwind-merge
 antd
 pinia
 @pinia/colada
+-D @pinia/colada-devtools
