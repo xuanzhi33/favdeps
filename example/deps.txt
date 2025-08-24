@@ -8,3 +8,4 @@ antd
 pinia
 @pinia/colada
 -D @pinia/colada-devtools
+vue-i18n@11
